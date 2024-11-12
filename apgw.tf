@@ -20,19 +20,20 @@ resource "azurerm_public_ip" "pip_appgw" {
 
 # since these variables are re-used - a locals block makes this more maintainable
 locals {
-  backend_address_pool_name      = "${project_name_prefix}-beap"
-  frontend_port_name             = "${project_name_prefix}-feport"
-  frontend_ip_configuration_name = "${project_name_prefix}-feip"
-  http_setting_name              = "${project_name_prefix}-be-htst"
-  listener_name                  = "${project_name_prefix}-httplstn"
-  request_routing_rule_name      = "${project_name_prefix}-rqrt"
-  redirect_configuration_name    = "${project_name_prefix}-rdrcfg"  
+  backend_address_pool_name      = "${var.project_name_prefix}-beap"
+  frontend_port_name             = "${var.project_name_prefix}-feport"
+  frontend_ip_configuration_name = "${var.project_name_prefix}-feip"
+  http_setting_name              = "${var.project_name_prefix}-be-htst"
+  listener_name                  = "${var.project_name_prefix}-httplstn"
+  request_routing_rule_name      = "${var.project_name_prefix}-rqrt"
+  redirect_configuration_name    = "${var.project_name_prefix}-rdrcfg"  
 }
 
 resource "azurerm_application_gateway" "appgw" {
   name                = "example-appgateway"
   resource_group_name = azurerm_resource_group.rg_appgw_test.name
   location            = azurerm_resource_group.rg_appgw_test.location
+  zones               = ["1", "2"]  # test effetc on cost
 
   sku {
     name     = "WAF_v2"
@@ -103,7 +104,7 @@ resource "azurerm_application_gateway" "appgw" {
 resource "azurerm_web_application_firewall_policy" "waf_policy" {
   name                = "wafpolicy"
   resource_group_name = azurerm_resource_group.rg_appgw_test.name
-  location            = azurerm_resource_group.rg_appgw_test.location
+  location            = azurerm_resource_group.rg_appgw_test.location  
 
   policy_settings {
     enabled                     = true
