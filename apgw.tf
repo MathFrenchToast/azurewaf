@@ -1,7 +1,17 @@
 # based on : https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/application_gateway
 
 
-
+# since these variables are re-used - a locals block makes this more maintainable
+locals {
+  backend_address_pool_name      = "${var.project_name_prefix}-beap"
+  frontend_port_name             = "${var.project_name_prefix}-feport"
+  frontend_ip_configuration_name = "${var.project_name_prefix}-feip"
+  http_setting_name              = "${var.project_name_prefix}-be-htst"
+  listener_name                  = "${var.project_name_prefix}-httplstn"
+  request_routing_rule_name      = "${var.project_name_prefix}-rqrt"
+  redirect_configuration_name    = "${var.project_name_prefix}-rdrcfg"  
+  zones                          = ["1", "2"]  # test effect on cost
+}
 
 resource "azurerm_subnet" "subnet_appgw" {
   name                 = "subnet-appgw-test"
@@ -15,30 +25,28 @@ resource "azurerm_public_ip" "pip_appgw" {
   resource_group_name = azurerm_resource_group.rg_appgw_test.name
   location            = azurerm_resource_group.rg_appgw_test.location
   allocation_method   = "Static"
+  zones = local.zones  # if appgw is zonal then the ip needs to be zonal too
+  
 }
 
 
-# since these variables are re-used - a locals block makes this more maintainable
-locals {
-  backend_address_pool_name      = "${var.project_name_prefix}-beap"
-  frontend_port_name             = "${var.project_name_prefix}-feport"
-  frontend_ip_configuration_name = "${var.project_name_prefix}-feip"
-  http_setting_name              = "${var.project_name_prefix}-be-htst"
-  listener_name                  = "${var.project_name_prefix}-httplstn"
-  request_routing_rule_name      = "${var.project_name_prefix}-rqrt"
-  redirect_configuration_name    = "${var.project_name_prefix}-rdrcfg"  
-}
+
 
 resource "azurerm_application_gateway" "appgw" {
   name                = "example-appgateway"
   resource_group_name = azurerm_resource_group.rg_appgw_test.name
   location            = azurerm_resource_group.rg_appgw_test.location
-  zones               = ["1", "2"]  # test effetc on cost
+  zones = local.zones
 
   sku {
     name     = "WAF_v2"
     tier     = "WAF_v2"
-    capacity = 2
+    # capacity = 2 # not used as we defined autoscale_configuration
+  }
+
+  autoscale_configuration {
+    min_capacity = 1 # 2 is the recommended minimum for production env.
+    max_capacity = 10
   }
 
   gateway_ip_configuration {
