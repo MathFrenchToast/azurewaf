@@ -1,6 +1,6 @@
-# AppGateway with WAF terrforming
+# AppGateway with WAF terraforming
 
-Terraforming of an Azure WAF with:=
+Terraforming of an Azure WAF with:
 - extensible WAF policy
 - default microsoft and bot ruleset
 - logs enable
@@ -22,7 +22,7 @@ AzureDiagnostics
 
 ## todo
 
-links:
+## links
 - [Démarrage rapide : diriger le trafic web avec Azure Application Gateway – Terraform - Azure Application Gateway | Microsoft Learn](https://learn.microsoft.com/fr-fr/azure/application-gateway/quick-create-terraform)
 - [Dancing with Qubits - Dancing with Qubits PDF.pdf](file:///C:/Users/mathi/Downloads/Dancing%20with%20Qubits%20PDF.pdf)
 - [Démarrage rapide : créer une instance de conteneur Azure avec une adresse IP publique à l’aide de Terraform - Azure Container Instances | Microsoft Learn](https://learn.microsoft.com/fr-fr/azure/container-instances/container-instances-quickstart-terraform)
