@@ -67,6 +67,7 @@ resource "azurerm_application_gateway" "appgw" {
   # firewall_policy_id could be set per http listener
   firewall_policy_id = azurerm_web_application_firewall_policy.waf_policy.id
 
+  # we can add more than one frontend_port, e.g. https 443 for ssl offloading
   frontend_port {
     name = local.frontend_port_name
     port = 80
@@ -77,7 +78,7 @@ resource "azurerm_application_gateway" "appgw" {
     public_ip_address_id = azurerm_public_ip.pip_appgw.id
   }
 
-  # It is possible to add multiple backend pools, each with their own backend\_http\_settings, see: https://github.com/hashicorp/terraform-provider-azurerm/issues/5697
+  # It is possible to add multiple backend pools, each with their own backend
   backend_address_pool {
     name = local.backend_address_pool_name
     ip_addresses = [azurerm_container_group.container.ip_address]
@@ -102,9 +103,11 @@ resource "azurerm_application_gateway" "appgw" {
   request_routing_rule {
     name                       = local.request_routing_rule_name
     priority                   = 9
-    rule_type                  = "Basic"
+    rule_type                  = "Basic" # rule_type is either 'Basic' or 'PathBasedRouting' for additional path filtering
     http_listener_name         = local.listener_name
     backend_address_pool_name  = local.backend_address_pool_name
+    # instead of a backend_http_settings_name 
+    # we could use a redirect_configuration_name for redirect rules
     backend_http_settings_name = local.http_setting_name
   }
 }
@@ -116,7 +119,7 @@ resource "azurerm_web_application_firewall_policy" "waf_policy" {
 
   policy_settings {
     enabled                     = true
-    mode                        = "Prevention"
+    mode                        = "Prevention"  # use "Detection" to only alert and not block
     request_body_check          = true # see https://learn.microsoft.com/en-us/azure/web-application-firewall/shared/waf-azure-policy
     file_upload_limit_in_mb     = 100
     max_request_body_size_in_kb = 128
