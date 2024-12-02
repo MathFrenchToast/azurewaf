@@ -158,6 +158,9 @@ resource "azurerm_log_analytics_workspace" "appgw_log_analytics" {
   location            = azurerm_resource_group.rg_appgw_test.location
   resource_group_name = azurerm_resource_group.rg_appgw_test.name
   sku                 = "PerGB2018"
+  retention_in_days   = 7
+  daily_quota_gb      = 1 # -1 for unlimited
+  immediate_data_purge_on_30_days_enabled = true  # adjust for compliance
 }
 
 resource "azurerm_monitor_diagnostic_setting" "appgw_monitor_diagnostic_setting" {
